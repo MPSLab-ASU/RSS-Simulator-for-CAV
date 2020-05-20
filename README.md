@@ -1,3 +1,3 @@
 # Traffic-Management
 
-open main.m and run.
+inside the CityWide folder, open main.m and run.
