@@ -46,7 +46,7 @@ for jj = JJrange % for fault injection
     rng(4443)
     %% simulation variables
     simulation = struct;
-    simulation.stepTime = 0.1;
+    simulation.stepTime = 0.05;
     simulation.rho = 0.1;
     simulation.saimax = pi/3;
     simulation.saimin = -pi/3;
