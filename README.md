@@ -17,4 +17,6 @@ Po Yu (National Taiwan University)
 
 # Requriements:
 
-Matlab R2018
+Matlab (for the main simulator)
+Python (for the map converter)
+
