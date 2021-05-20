@@ -145,7 +145,8 @@ for jj = JJrange % for fault injection
     if scenario == 33
         timeRange = 1:1000;
         vehicles = [];
-        NumVehicles = 20;
+        NumVehicles = 3;
+        assert(NumVehicles < length(World.Source))
     
 %         nodeID = World.Source(1);
 %         id = 1; xsrc = World.Nodes.X(nodeID); ysrc = World.Nodes.Y(nodeID);
@@ -377,7 +378,7 @@ for jj = JJrange % for fault injection
                 drawHighway(World, vehicles)
             elseif SimulationWorld == 3
                 drawWorldNew(World);
-                axis([-200 1800 -200 1800])
+%                 axis([-200 1800 -200 1800])
 %                 axis([620 720 1140 1210])
 %                 axis([1190 1280 30 100])
             end
