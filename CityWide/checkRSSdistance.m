@@ -40,7 +40,8 @@ d_stop_D = vehicleD.v * simulation.rho + 0.5 * simulation.amax * simulation.rho^
     vehicleD.CarLength/2 + vehicleA.CarLength/2 + geoBuffer;
 
 
-if  dcAe > d_stop_A && dcAb < d_stop_A
+if  dcAe > d_stop_A 
+%     && dcAb < d_stop_A
     distanceIsLessThanRequired = 1;
     dcDb = 0;
     if conflicts.egoCavArrivalTimeID > 1
@@ -51,9 +52,10 @@ if  dcAe > d_stop_A && dcAb < d_stop_A
     if dcDb < d_stop_D 
 %         disp('not safe!')
     end
-    v_TH = (dcDb - d_stop_D)/conflicts.AdvCavArrivalTime;
-    v_3s = dcDb/(conflicts.AdvCavArrivalTime + 3);    % three second rule
-    DesiredVelocity = min(v_TH, v_3s);
+    v_TH = (dcDb - 10)/conflicts.AdvCavArrivalTime;
+    v_3s = dcDb/(conflicts.AdvCavArrivalTime + 2);    % three second rule
+%     v_3s = simulation.vmax;
+    DesiredVelocity = min(v_3s, v_TH);
     NewDesiredVelocity = min(DesiredVelocity, NewDesiredVelocity);
 %     if vehicleD.ID == 2
 %         dcAb

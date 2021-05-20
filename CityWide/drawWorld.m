@@ -120,6 +120,7 @@ for i = 1:length(World.Road)
     end
 end
 %% small fixes
+if World.id == 1
 plot([144 141.5], [182.5 185], 'Color', [0 0 0])
 plot([141.5 144], [160 162.5], 'Color', [0 0 0])
 plot([96 98.5], [162.5 160], 'Color', [0 0 0])
@@ -142,7 +143,7 @@ plot([107.5 110], [152 149], 'Color', [0 0 0])
 plot([117.5 120], [152 149], 'Color', [0 0 0])
 plot([132.5 130], [152 149], 'Color', [0 0 0])
 plot([96 98.5], [172.5 175], 'Color', [0 0 0])
-
+end
 ax = gcf;
 % ax.Position = [2357 106 987 797];
 % text(200, 0, num2str(Now))

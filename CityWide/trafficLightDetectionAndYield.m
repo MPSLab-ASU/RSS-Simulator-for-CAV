@@ -1,8 +1,7 @@
-function [phase, vehicle] = trafficLightDetectionAndYield(vehicle, simulation, Now, path)
+function [phase, vehicle] = trafficLightDetectionAndYield(vehicle, simulation, Now, path, World)
 intersectionX = simulation.intersectionX;
 intersectionY = simulation.intersectionY;
 Lane = -1;
-
 
 
 % do traffic light
@@ -46,6 +45,11 @@ if 55 <= t0 && t0 < 60
     % WE left turn yellow
     phase = 44;
 end
+
+
+
+
+
 if eDistance(vehicle.x,intersectionX, vehicle.y, intersectionY) < 50
     if vehicle.phi <= 45 && vehicle.phi >= -45
         % lane = West bound [-45, 45]

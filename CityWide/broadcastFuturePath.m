@@ -1,5 +1,5 @@
-function [vehicle, path] = broadcastFuturePath(vehicle, World, simulation)
-d_max = simulation.vmax*(simulation.rho + simulation.vmax/abs(simulation.amin)) + 0;
+function [vehicle, path] = broadcastFuturePath(vehicle, World, simulation, JJ)
+d_max = simulation.vmax*(simulation.rho + simulation.vmax/abs(simulation.amin)) + (JJ-1)*20;
 %% Finding the plan that is d_max long
 path = struct;
 path.x = World.Nodes.X(vehicle.plan);
@@ -7,7 +7,10 @@ path.y = World.Nodes.Y(vehicle.plan);
 plan = [];
 d1 = 0;
 i = 1;
-while d1 < d_max
+while d1 < d_max && i < length(path.x)
+%     if i > length(path)
+%         disp('size')
+%     end
     d1 = getGraphDistance(path, i);
     distances(i) = d1;
     plan = vehicle.plan(1:i);

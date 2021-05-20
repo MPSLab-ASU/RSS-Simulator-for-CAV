@@ -1,5 +1,6 @@
 function vehicle = newVehicle(x,y,phi,v,ID)
 colorList = [0, 0.4470, 0.7410;0.8500, 0.3250, 0.0980;0.6350, 0.0780, 0.1840;0, 0.5, 0;0.4940, 0.1840, 0.5560;0, 0.75, 0.75;0, 0.4470, 0.7410;0.8500, 0.3250, 0.0980;0.6350, 0.0780, 0.1840;0, 0.5, 0;0.4940, 0.1840, 0.5560;0, 0.75, 0.75];
+colorList = [colorList;colorList];
 vehicle = struct;
 vehicle.ID = ID;
 vehicle.CarLength = 5;
@@ -30,13 +31,14 @@ vehicle.CT = [];
 vehicle.replanTime = 0;
 vehicle.Destination = [];
 vehicle.W = 0;
+vehicle.resumeTime = [];
 
 % vehicle constants
 vehicle.wheelbase = 4;
 vehicle.k_v_P = 5;
 vehicle.k_v_D = 0.1;
 vehicle.k_d_P = 10;
-vehicle.k_a_P = 10;
+vehicle.k_a_P = 5;
 vehicle.k_a_I = 0;
 vehicle.k_a_D = 0;
 vehicle.control_mode = 'speed';

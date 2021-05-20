@@ -1,15 +1,16 @@
-clc;clear all; close all;
+clc;clear; close all;
 %%
 recordData = 0;
 scenario = 1;
 naIve = 0;
 videoRecording = 0;
-
+SimulationWorld = 3;
+REM = 2; % printing step time
 %%
 if recordData == 1
     ALLDATA = struct;
     counter = 1;
-    if scenario == 1 || scenario == 11
+    if scenario == 1 || scenario == 11 || scenario == 2 || scenario == 33
         JJrange = 1;
     end
     if scenario == 3
@@ -21,7 +22,7 @@ if recordData == 1
 else
     JJrange = 1;
 end
-REM = 10;
+
 if videoRecording == 1
     JJrange = 1;
     REM = 1;
@@ -43,10 +44,10 @@ for jj = JJrange % for fault injection
     C = [];
     A = [];
     %% main control
-    rng(4443)
+    rng(4445)
     %% simulation variables
     simulation = struct;
-    simulation.stepTime = 0.05;
+    simulation.stepTime = 0.1;
     simulation.rho = 0.1;
     simulation.saimax = pi/3;
     simulation.saimin = -pi/3;
@@ -59,12 +60,14 @@ for jj = JJrange % for fault injection
     simulation.intersectionY = 172.5;
     
     %% World
-%     World = makeWorld();
-    SimulationWorld = 1;
+    %     World = makeWorld();
+    
     if SimulationWorld == 1
         load WorldNEW
     elseif SimulationWorld == 2
         load Highway
+    elseif SimulationWorld == 3
+        load World3
     end
     
     % to create a vehicle at x,y with heading phi (degree) and velocity v, ID
@@ -73,12 +76,15 @@ for jj = JJrange % for fault injection
     if SimulationWorld == 2
         scenario = 5;
     end
+    if SimulationWorld == 3
+        scenario = 33;
+    end
     % scenario 1
     if scenario == 1
-        timeRange = 1:3600;
-        vehicle1 = newVehicle(3,7.5,0,11,1);
+        timeRange = 1:7200;
+        vehicle1 = newVehicle(10,2.5,0,11,1);
         vehicle2 = newVehicle(122.5,130,90,12,2);
-        vehicle3 = newVehicle(40,7.5,0,8,3);
+        vehicle3 = newVehicle(80,7.5,0,8,3);
         vehicle4 = newVehicle(75,170,0,9,4);
         vehicle5 = newVehicle(115,245,-90,6,5);
         vehicle6 = newVehicle(127.5,110,90,7,6);
@@ -104,11 +110,11 @@ for jj = JJrange % for fault injection
     
     % deadlock scenario
     if scenario == 2
-        timeRange = 1:200;
-        vehicle1 = newVehicle(141,172.5,180,10,1);
-        vehicle2 = newVehicle(99,172.5,0,10,2);
-        vehicle3 = newVehicle(120,152,90,10,3);
-        vehicle4 = newVehicle(120,193,-90,10,4);
+        timeRange = 1:90;
+        vehicle1 = newVehicle(142,172.5,180,10,1);
+        vehicle2 = newVehicle(98,172.5,0,10,2);
+        vehicle3 = newVehicle(120,151,90,10,3);
+        vehicle4 = newVehicle(120,194,-90,10,4);
         vehicles = [vehicle1 vehicle2 vehicle3 vehicle4];
     end
     % two cars unsafe stop intersection scenario
@@ -135,7 +141,32 @@ for jj = JJrange % for fault injection
         
         vehicles = [vehicle1 vehicle2 vehicle3 vehicle4];
     end
+    % from OSM
+    if scenario == 33
+        timeRange = 1:1000;
+        vehicles = [];
+        NumVehicles = 20;
     
+%         nodeID = World.Source(1);
+%         id = 1; xsrc = World.Nodes.X(nodeID); ysrc = World.Nodes.Y(nodeID);
+%         destNodeID = World.G.Edges.EndNodes(find(World.G.Edges.EndNodes(:,1) == nodeID),2); % find the connected node to the source node
+%         xdest = World.Nodes.X(destNodeID); ydest = World.Nodes.Y(destNodeID);
+%         direction = rad2deg(atan2(ydest-ysrc,xdest-xsrc));
+%         vrand = randi(6)+9;         % between 10 and 15
+%         vehicle1 = newVehicle(xsrc,ysrc,direction,vrand,id);
+        
+        
+ 
+        
+%         nodeID = World.Source(2);
+%         id = 2; xsrc = World.Nodes.X(nodeID); ysrc = World.Nodes.Y(nodeID);
+%         destNodeID = World.G.Edges.EndNodes(find(World.G.Edges.EndNodes(:,1) == nodeID),2); % find a connected node
+%         xdest = World.Nodes.X(destNodeID); ydest = World.Nodes.Y(destNodeID);
+%         direction = rad2deg(atan2(ydest-ysrc,xdest-xsrc));
+%         vrand = randi(6)+9;         % between 10 and 15
+%         vehicle2 = newVehicle(xsrc,ysrc,direction,vrand,id);
+%         vehicles = [vehicle1;vehicle2];
+    end
     
     
     
@@ -149,7 +180,7 @@ for jj = JJrange % for fault injection
         vehicles(j) = GlobalPlanner(vehicles(j), World, SimulationWorld);
         vehicles(j) = localPlanner(vehicles(j), World, simulation);
     end
-    
+    id = 0;
     % figure;hold on;
     resolutions = [];
     tDeadlock = -1;
@@ -157,35 +188,81 @@ for jj = JJrange % for fault injection
     IsConflictRecorded = 0;
     pathsB = [];
     pathsBB = [];
-    found = 0; 
+    found = 0;
     Resolution = [];
     deadlockSearchTimestamp = -1;
-    tic;
+    
     for i = timeRange
-        Now = (i-1) * simulation.stepTime
+        tic;
+        Now = (i-1) * simulation.stepTime;
         %% fault injection
         if scenario == 3 || scenario == 4
             if i > jj
                 vehicles(2).v_r = 0;
             end
         end
+        %% Vehicle generation and removal
+        if SimulationWorld == 3
+        for j = 1:length(vehicles)
+            if length(vehicles(j).plan) < 10
+                vehicles(j)=[]; % removes one by one
+                index = j;
+                break;
+            end
+        end
+        
+        if length(vehicles) < NumVehicles
+            nodeID = World.Source(rem(id+1,NumVehicles)+1);
+            IDLIST = [];
+            for j = 1:length(vehicles)
+                IDLIST = [IDLIST vehicles(j).ID];
+            end
+            ALLIDs = 1:NumVehicles;
+            commonIDs = intersect(ALLIDs,IDLIST);
+            IDLIST = setxor(ALLIDs,commonIDs);
+            id = IDLIST(1); xsrc = World.Nodes.X(nodeID); ysrc = World.Nodes.Y(nodeID);
+            destNodeID = World.G.Edges.EndNodes(find(World.G.Edges.EndNodes(:,1) == nodeID),2); % find the connected node to the source node
+            xdest = World.Nodes.X(destNodeID); ydest = World.Nodes.Y(destNodeID);
+            direction = rad2deg(atan2(ydest-ysrc,xdest-xsrc));
+            vrand = randi(6)+9;         % between 10 and 15
+            vehicle = newVehicle(xsrc,ysrc,direction,vrand,id);
+            vehicle = GlobalPlanner(vehicle, World, SimulationWorld);
+            vehicle = localPlanner(vehicle, World, simulation);
+%             if length(vehicles) < 6
+            if vehicle.ID == 1
+                vehicles = [vehicle vehicles];
+            elseif vehicle.ID == NumVehicles
+                vehicles = [vehicles vehicle];
+            else
+                vehicles = [vehicles(1:vehicle.ID-1) vehicle vehicles(vehicle.ID:end)];
+            end
+%             elseif length(vehicles) == 6
+%                 vehicles(index) = vehicle;
+%             end
+            
+        end
+        end
         %% predict and broadcast
         for j = 1:length(vehicles)
             %         trajs(j) = PredictandBroadcast(vehicles(j), World, simulation, Now);
-            [vehicles(j), paths(j)] = broadcastFuturePath(vehicles(j), World, simulation);
-            pathsBBB = pathsBB;
-            pathsBB = pathsB;
-            pathsB = paths;
+            [vehicles(j), paths(j)] = broadcastFuturePath(vehicles(j), World, simulation, jj);
+%             pathsBBB = pathsBB;
+%             pathsBB = pathsB;
+%             pathsB = paths;
         end
+        %% traffic light
         if naIve == 1
             for j = 1:length(vehicles)
-                vehicles(j).v_r = vehicles(j).v0;
-                [phase, vehicles(j)] = trafficLightDetectionAndYield(vehicles(j), simulation, Now, paths(j));
+                
+                
+                
+%                 [phase, vehicles(j)] = trafficLightDetectionAndYield(vehicles(j), simulation, Now, paths(j),World);
             end
         end
         %% Planning
         if naIve == 1
             for j = 1:length(vehicles)
+                vehicles(j).v_r = vehicles(j).v0;
                 % simple planning (obstacle avoidance)
                 vehicles(j) = GlobalPlanner(vehicles(j), World, SimulationWorld);
                 %% local Planner (find the next way point based on CAV position and World waypoints)
@@ -203,7 +280,7 @@ for jj = JJrange % for fault injection
                         if sum(ismember(path1.x, path2.x(4))) > 0 && sum(ismember(path1.y, path2.y(4))) > 0
                             remainingDistance = eDistance(path1.x(1),path2.x(1), path1.y(1), path2.y(1));
                             d_stop = vehicle1.v^2/abs(2*simulation.amin) + 2*vehicle1.CarLength ;
-%                             d_stop = 30;
+                            %                             d_stop = 30;
                             if remainingDistance <= d_stop
                                 vehicles(j).v_r = 0;
                                 break;
@@ -215,13 +292,19 @@ for jj = JJrange % for fault injection
                         end
                     end
                 end
+                if vehicles(j).v_r > vehicles(j).v0
+                    vehicles(j).v_r = vehicles(j).v0;
+                end
+                vehicles(j) = stopSign(vehicles(j), World, simulation, paths, vehicles, Now);
             end
         end
         if naIve == 0
             if Now >= 0.1
                 for j = 1:length(vehicles)
-                    [vehicles(j), allConflicts{j}] = M_planning(vehicles(j), World, vehicles, simulation, Now, pathsBB, SimulationWorld, found, Resolution);
+                    [vehicles(j), allConflicts{j}] = M_planning(vehicles(j), World, vehicles, simulation, Now, paths, SimulationWorld, found, Resolution);
                 end
+                %                 vv1 = allConflicts{1}.hasDisadvantage
+                %                 vv4 = allConflicts{4}.hasDisadvantage
             end
         end
         
@@ -229,19 +312,20 @@ for jj = JJrange % for fault injection
         %     for j = 1:length(vehicles)
         if Now >= 0.1
             if naIve == 0
-            if deadlockSearchTimestamp == -1
-                [found, Resolution] = deadlockRemoval(allConflicts);
-                if found == 1
-                    deadlockSearchTimestamp = Now;
+                if deadlockSearchTimestamp == -1
+                    [found, Resolution] = deadlockRemoval(allConflicts);
+                    if found == 1
+                        deadlockSearchTimestamp = Now;
+                    end
+                else
+                    if Now > deadlockSearchTimestamp + 3
+                        found = 0;
+                        Resolution = [];
+                    end
                 end
-            else
-                if Now > deadlockSearchTimestamp + 3
-                    found = 0;
-                    Resolution = [];
-                end
-            end
             end
         end
+        
         %     end
         %% data logging
         if Now >= 0.1
@@ -260,7 +344,7 @@ for jj = JJrange % for fault injection
                 end
             end
         end
-        %% Forward Sim
+        %% Simualte vehicle dynamics for the next step
         for j = 1:length(vehicles)
             vehicles(j) = vehicleStepForward(vehicles(j),simulation);
         end
@@ -272,10 +356,10 @@ for jj = JJrange % for fault injection
                     allConflicts{j} = [];
                 end
                 if Now >= 0.1
-                drawVehicle(vehicles(j),World, allConflicts{j}, paths)
-                if naIve == 1
-                    drawLight(phase);
-                end
+                    drawVehicle(vehicles(j),World, allConflicts{j}, paths)
+                    if naIve == 1
+%                         drawLight(phase);
+                    end
                 end
             end
             %         if deadlock == 1
@@ -285,24 +369,32 @@ for jj = JJrange % for fault injection
             %         end
             ax = gcf;
             %             ax.Position = [680 110 1047 868];
-            ax.Position = [180 133 500 400];
+            ax.Position = [202.6000 66.6000 734.4000 613.2000];
             if SimulationWorld == 1
                 drawWorld(World);
                 axis([-50 250 -10 300])
             elseif SimulationWorld == 2
                 drawHighway(World, vehicles)
+            elseif SimulationWorld == 3
+                drawWorldNew(World);
+                axis([-200 1800 -200 1800])
+%                 axis([620 720 1140 1210])
+%                 axis([1190 1280 30 100])
             end
-            
-            
-            pause(0.0001);
+            str = sprintf("time = %3.1f",Now);
+%             text(630,1150, str)
+%             text(1200,40, str)
+            pause(0.00001);
             if videoRecording == 1
                 frame = getframe(gcf);
                 writeVideo(v,frame);
             end
             cla;
         end
+        ExecutionTime(i) = toc;
         %     t4 = t4 + toc;
     end
+    avgV(JJrange) = mean(mean(V));
     if recordData == 1
         ALLDATA.X{counter} = X;
         ALLDATA.Y{counter} = Y;
@@ -313,8 +405,9 @@ for jj = JJrange % for fault injection
         ALLDATA.C{counter} = C;
         counter = counter + 1;
     end
-    ExecutionTime = toc;
+    
 end
+
 if videoRecording == 1
     close(v);
 end

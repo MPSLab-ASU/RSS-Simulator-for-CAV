@@ -3,13 +3,16 @@ tempWorld = World;
 allConflicts = [];
 tDeadlock = -1;
 replan = 0;
-    
+d_max = simulation.vmax*(simulation.rho + simulation.vmax/abs(simulation.amin));
+
 for j = 1:length(vehicles)
     %% Path conflict check
     if vehicle.ID ~= vehicles(j).ID
         if eDistance(vehicle.x, vehicles(j).x, vehicle.y, vehicles(j).y) < 100
             %% calculate conflicts
+            
             [vehicle, conflicts] = conflictCalc(vehicle, vehicles(j), simulation, paths);
+            
             %% Advantage determination
             if ~isempty(conflicts)
                 conflicts = rightOfTheWayCalc(conflicts, Now);
@@ -30,14 +33,16 @@ for j = 1:length(vehicles)
                 end
                 allConflicts = [allConflicts conflicts];
             end
+            
         end
     end
 end
 
 if vehicle.ID == 7
-%     disp('7')
+    %     disp('7')
 end
 %% conflict resolution
+
 for k = 1:length(allConflicts)
     if allConflicts(k).hasDisadvantage == 1
         [distanceIsLessThanRequired, desiredVelocity] = checkRSSdistance(vehicle, vehicles(allConflicts(k).AdvCavID), allConflicts(k), vehicles, simulation, paths);
@@ -46,7 +51,7 @@ for k = 1:length(allConflicts)
         end
         if distanceIsLessThanRequired == 1
             [vehicle, tempWorld] = WorldUpdate(vehicle, tempWorld, vehicles(allConflicts(k).AdvCavID), desiredVelocity, allConflicts(k), paths);
-%             vehicle.replanTime = allConflicts(k).AdvCavDepartureTime + Now;
+            %             vehicle.replanTime = allConflicts(k).AdvCavDepartureTime + Now;
             vehicle.replanTime = 1 + Now; % 1 second later
             replan = 1;
         end
@@ -62,7 +67,7 @@ if vehicle.replanTime ~= -1
     end
 end
 
-
+tic
 %% replanning if needed
 if replan == 1
     SourceID = vehicle.plan(1);
@@ -77,7 +82,7 @@ if replan == 1
     d1 = 0;
     i = 1;
     d_max = simulation.vmax*(simulation.rho + simulation.vmax/abs(simulation.amin));
-    while d1 < d_max
+    while d1 < d_max && i < length(newpath.x)
         d1 = getGraphDistance(newpath, i);
         distances(i) = d1;
         plan = P(1:i);

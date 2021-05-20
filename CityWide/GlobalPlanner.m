@@ -1,13 +1,17 @@
 function vehicle = GlobalPlanner(vehicle, World, SimulationWorld)
 if SimulationWorld == 1
-nodeIDs = [2588 2531 942 959 976 993];
+    nodeIDs = [2588 2531 942 959 976 993];
 elseif SimulationWorld == 2
-   
-        nodeIDs = 1:8008;
     
-        
+    nodeIDs = 1:8008;
+elseif SimulationWorld == 3
+    
+    nodeIDs = World.Sink;
+    
+    
+    
 end
-    
+
 while vehicle.hasPlan == 0
     Destination.ID = datasample(nodeIDs,1);
     Destination.x = World.Nodes.X(Destination.ID);
@@ -28,7 +32,7 @@ while vehicle.hasPlan == 0
     vehicle.plan = P;
     
     vehicle.W = W;
-%     vehicle.planID = 1;
+    %     vehicle.planID = 1;
     
     vehicle.Destination.x = Destination.x;
     vehicle.Destination.y = Destination.y;

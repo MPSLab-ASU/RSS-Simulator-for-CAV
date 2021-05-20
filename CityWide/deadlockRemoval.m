@@ -12,21 +12,21 @@ for i = 1:length(allConflicts)
         end
     end
 end
-if ~isempty(Edge)
+if ~isempty(E)
 Edge = E(:,1:2);
 Edge = unique(Edge, 'row');
 G = digraph;
 for i = 1:size(Edge,1)
     G = addedge(G, Edge(i,1), Edge(i,2));
 end
-
+disp('')
 while ~isdag(G)
     found = 1;
     nodes = Edge(:,1);
     for i = 1:length(nodes)
         sum(i) = 10000;
         for j = 1:length(allConflicts)
-            for k = 1:length(allConflicts{i})
+            for k = 1:length(allConflicts{j})
                 if allConflicts{j}(k).egoCavID == Edge(i,1)
                     if allConflicts{j}(k).AdvCavID == Edge(i,2)
                         sum(i) = min(sum(i), allConflicts{j}(k).egoCavArrivalTime);
@@ -40,7 +40,7 @@ while ~isdag(G)
     DCAV = Edge(b,2);
     Resolution = [Resolution; ACAV DCAV];
     for j = 1:length(allConflicts)
-        for k=1:length(allConflicts{i})
+        for k=1:length(allConflicts{j})
             if allConflicts{j}(k).egoCavID == ACAV
                 if allConflicts{j}(k).AdvCavID == DCAV
                     allConflicts{j}(k).hasDisadvantage = 0;
