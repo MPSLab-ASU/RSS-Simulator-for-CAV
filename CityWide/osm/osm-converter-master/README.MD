@@ -24,31 +24,6 @@ Convert the json file into desired format(Two lanes, Directions, Arcs)
 python src/Convert.py --input <input json file> --log <log png file> --output <output json file>
 ```
 
-##### input file format
-osm file. You can get the osm file from the openstreetmap website.  
-json format. `test/input.json` for reference.  
-Simple demo of how to use the json file created in matlab.
-```
-fileName = 'output.json';
-str = fileread(fileName);
-data = jsondecode(str);
-G = digraph;
-X = [];
-Y = [];
-G = addnode(G,length(data.nodes));
-for i = 1:length(data.nodes)
-    X = [X data.nodes(i,1)];
-    Y = [Y data.nodes(i,2)];
-    
-    
-    
-end
-for i = 1:length(data.edges)
-    G = addedge(G, data.edges(i,1) + 1, data.edges(i,2) + 1);
-end
-figure;plot(G, 'XData',X,'YData',Y)
-```
-
 ### Next Step, Convert to MAT
 After generating the json file, run the ConvertWorld.m file to create the World file wit MAT format.
 Later, this file can be used by the simulator (main.m)
