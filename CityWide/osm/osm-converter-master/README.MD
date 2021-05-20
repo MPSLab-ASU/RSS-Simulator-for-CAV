@@ -6,6 +6,7 @@ numpy 1.17.5
 matplotlib 3.1.3  
 geopy 2.0.0  
 lxml 4.5.2
+xmltodict 0.12.0
 
 ### Usage
 Extract edges and nodes from the osm file to json file.  
@@ -33,6 +34,9 @@ G = addnode(G,length(data.nodes));
 for i = 1:length(data.nodes)
     X = [X data.nodes(i,1)];
     Y = [Y data.nodes(i,2)];
+    
+    
+    
 end
 for i = 1:length(data.edges)
     G = addedge(G, data.edges(i,1) + 1, data.edges(i,2) + 1);
@@ -40,6 +44,6 @@ end
 figure;plot(G, 'XData',X,'YData',Y)
 ```
 
-### Backlog
-
-1. Add parameter for log control.
+### Next Step, Convert to MAT
+After generating the json file, run the ConvertWorld.m file to create the World file wit MAT format.
+Later, this file can be used by the simulator (main.m)
