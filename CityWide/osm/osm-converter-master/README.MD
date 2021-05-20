@@ -6,6 +6,7 @@ numpy 1.17.5
 matplotlib 3.1.3  
 geopy 2.0.0  
 lxml 4.5.2
+xmltodict 0.12.0
 
 ### Usage
 Extract edges and nodes from the osm file to json file.  
