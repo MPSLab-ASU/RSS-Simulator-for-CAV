@@ -1,6 +1,8 @@
 Contributors:
 Mohammad Khayatian (Arizona State University)
+
 Kai Wei (National Taiwan University)
+
 Po Yu (National Taiwan University)
 
 # Matlab-Simulator-for-RSS-based-motion-planning-of-Connected-Autonomous-Vehicles
